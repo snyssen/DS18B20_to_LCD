@@ -4,6 +4,8 @@
 ; http://avr-mcu.dxp.pl
 ; e-mail : radek@dxp.pl
 ; (c) Radoslaw Kwiecien
+;
+; Génère des boucles d'attente utilisées dans le reste du programme
 ;------------------------------------------------------------------------------
 
 #ifndef F_CPU

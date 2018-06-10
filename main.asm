@@ -1,19 +1,26 @@
 ;------------------------------------------------------------------------------
 ; iButton serial number reader
-; Addapter pour lire le 18b20 par http://adriy.be
 ; http://avr-mcu.dxp.pl
 ; e-mail: radek(at)dxp.pl
 ; (c) Radoslaw Kwiecien
+;
+; Programme principal
+;
+; Permet la lecture et la conversion des données envoyées par le capteur de température DS18B20
+; Afin de les inscrire sur un afficheur LCD
+;
+;Datasheet du DS18B20 -> https://cdn.sparkfun.com/datasheets/Sensors/Temp/DS18B20.pdf
 ;------------------------------------------------------------------------------
 
 ;------------------------------------------------------------------------------
 ; Defines
 ;------------------------------------------------------------------------------
-#define F_CPU 8000000
+#define F_CPU 8000000 ; Fréquence microcontrôleur set à 8 MHz
 
 ;Table 3. DS18B20 Function Command Set p12
-#define ReadRom 0x33
-#define SkipRom 0xcc
+; Set des fonctions du DS18B20
+#define ReadRom 0x33					; Lecture de la ROM
+#define SkipRom 0xcc					; Skip ROM permet de savoir le mode d'alimentation du DS18B20 (alimentation externe ou via le 1-wire bus)
 #define ConvertTemp 0x44				; Initiates temperature conversion.
 #define  WScratch 0x4e					; Writes data into scratchpad bytes 2, 3, and4 (TH, TL, and configuration registers).
 #define  RScratch 0xbe					; Reads the entire scratchpad including theCRC byte.
@@ -31,11 +38,11 @@ SerialNumber:	.byte 8
 ;------------------------------------------------------------------------------
 ; Include required files
 ;------------------------------------------------------------------------------
-#include "vectors.asm"
-#include "hd44780.asm"
-#include "wait.asm"
-#include "1-wire.asm"
-#include "crc8.asm"
+#include "vectors.asm" ; Vecteur d'interruptions
+#include "hd44780.asm" ; Bibliothèque de l'afficheur LCD
+#include "wait.asm"	   ; Boucle d'attente
+#include "1-wire.asm"  ; Lecture et conversion des données reçues du capteur
+#include "crc8.asm"    ; Cyclic Redundancy Check des mots de 8 bits reçus
 ;------------------------------------------------------------------------------
 ; Constants definition
 ;------------------------------------------------------------------------------
@@ -51,7 +58,7 @@ Tp :
 ;------------------------------------------------------------------------------
 ProgramEntryPoint:
 	ldi		r16, LOW(RAMEND)			; Initialize stack pointer
-	out		SPL, r16					;
+	out		SPL, r16					; Ecrit r16 sur le bas du stack
 
 	rcall	LCD_Init					; Initialize LCD
 
@@ -84,12 +91,12 @@ MainLoop:
 	ldi		r16, (HD44780_LINE1 + 1)	;
 	rcall	LCD_SetAddressDD			; Set Display Data address to (1,1);
 	rcall	OWReset						; One wire reset
-	brts	MainLoop					; If device not present go to MainLoop
+	brts	MainLoop					; If device not present go to MainLoop (brts = BRanch if T flag is Set)
 
-	rcall	TempRequest
-	rcall	MainReadTemp
-	rcall	ConvertTempForLCD
-	nop
+	rcall	TempRequest					; Demande la température (1-wire.asm)
+	rcall	MainReadTemp				; Lit la température (1-wire.asm)
+	rcall	ConvertTempForLCD			; Convertir la température pour l'afficher sur le LCD (1-wire.asm)
+	nop									; Attend 3 cycles d'horloge
 	nop
 	nop
 	;jmp		PC-1;LoadLoop
@@ -98,14 +105,24 @@ MainLoop:
 LoadLoop:
 	push	r16
 	mov		r16, XL						; chargement partie entière
-	rcall bin2bcd8
+; SET DE L'ALARME
+	cpi		XL, 25						; On compare la température relevée à celle max avant alarme
+	brsh	SetLED						; allume la LED si on a atteint ou dépassé la temp d'alarme
+	cbi		PortB, 7
+	endbr:
+	rcall   bin2bcd8
 	rcall	LCD_WriteHex8				; display it on LCD in HEX
-	mov		r16, r18						; load DEC
+	mov		r16, r18					; load DEC
 	rcall	bin2bcd8
 	rcall	LCD_WriteHex8				; display it on LCD in HEX
-	jmp MainLoop
+	jmp		MainLoop
 	brne	LoadLoop					; if not zero, jump to LoadLoop
 	rjmp	MainLoop					; jump to MainLoop
+
+SetLED:
+	sbi		PortB, 7
+	jmp		endbr
+
 ;------------------------------------------------------------------------------
 ; End of file
 ;------------------------------------------------------------------------------

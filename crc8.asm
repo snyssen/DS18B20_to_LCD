@@ -4,6 +4,9 @@
 ; http://avr-mcu.dxp.pl
 ; e-mail: radek@dxp.pl
 ; (c) Radoslaw Kwiecien
+;
+; Utilisation du CRC (Cyclic Redundancy Check) sur les mots de 8 bits délivrés
+; par le capteur pour s'assurer qu'il n'y a pas d'erreurs dans la trasmission
 ;------------------------------------------------------------------------------
 
 ;------------------------------------------------------------------------------

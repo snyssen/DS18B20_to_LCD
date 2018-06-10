@@ -1,5 +1,5 @@
 ;------------------------------------------------------------------------------
-;
+; Lecture et conversion des données reçues du capteur
 ;------------------------------------------------------------------------------
 .equ	OW_PORT	= PORTD
 .equ	OW_PIN	= PIND
@@ -38,7 +38,7 @@ OWReset:
 	cbi		OW_PORT,OW_DQ
 	sbi		OW_DDR,OW_DQ
 
-	ldi		XH, HIGH(DVUS(470))
+	ldi		XH, HIGH(DVUS(470)) ; DVUS est défini dans wait.asm
 	ldi		XL, LOW(DVUS(470))
 	rcall	Wait4xCycles
 
@@ -131,7 +131,7 @@ OWReadLoop:
 ;------------------------------------------------------------------------------
 ; 18b20 MainReadTemp
 ;------------------------------------------------------------------------------
-MainReadTemp:
+MainReadTemp: ; Lecture et stockage des données
 
 	ldi 	YL,LOW(TempWord)
 	ldi   YH,HIGH(TempWord)
@@ -149,9 +149,9 @@ MainReadTemp:
 	;rcall	LCD_WriteHex8
 	ret
 
-TempRequest:
+TempRequest: ; request d'une lecture de données
 	rcall	OWReset						; One wire reset
-	brts	MainReadTemp					; If device not present go to MainLoop
+	brts	MainReadTemp					; If device not present go to MainLoop (brts = BRanch if T flag is Set)
 
 	ldi		r16,SkipRom 					; Write Skip Rom one wire in "single-drop"
 	rcall	OWWriteByte					;
@@ -161,23 +161,24 @@ TempRequest:
 	rcall WaitMiliseconds
 	reti
 
-ConvertTempForLCD:	;r18 contiendra la partie décimal et xl la partie entiere
-	push 	r16
+ConvertTempForLCD: ; Conversion des données lues dans MainReadTemp pour un affichage sur le LCD
+				   ; r18 contiend la partie décimale, xl la partie entière
+	push 	r16						; Récupère les valeurs de la pile
 	push	r17
 	ldi 	YL,LOW(TempWord)
 	ldi		YH,HIGH(TempWord)
 	ld		XL, Y+
 	ld 		XH, Y+
 	lsr		XL
-	lsr		XL ;Sup des deux bit inutilisé
-	mov		r16, XL
-	ldi		r18, 0x03			;Masque des 3 bit de fraction
-	AND 	r18, XL					;3bit fraction
+	lsr		XL						; Logical Shift Right => on se débarasse des deux LSB
+	mov		r16, XL					; Copie du registre XL dans r16
+	ldi		r18, 0x03				; Masque des 3 bit de la fraction
+	AND 	r18, XL
 	ldi		r16, 25
-	mul		r18, r16
-	movw		r18, r0
+	mul		r18, r16				; multiplication
+	movw		r18, r0				; Copie de la valeur de r0 dans r18
 	lsr		XL
-	lsr		XL ;Sup des deux bit de fraction
+	lsr		XL						; Logical Shift Right => on se débarasse des deux LSB
 	ldi		r16, 0b00001111
 	and		XH,r16
 	SWAP	XH
@@ -185,6 +186,6 @@ ConvertTempForLCD:	;r18 contiendra la partie décimal et xl la partie entiere
 	;mov		r16, R18
 	;rcall	LCD_WriteHex8
 
-	pop		r17
+	pop		r17						; Remet les valeurs dans la pile
 	pop 	r16
 	ret

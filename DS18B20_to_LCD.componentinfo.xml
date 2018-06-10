@@ -26,13 +26,13 @@
 					<SourcePath></SourcePath>
 				</d4p1:anyType>
 				<d4p1:anyType i:type="FileInfo">
-					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m328pdef.inc</AbsolutePath>
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.2.150\avrasm\inc\m328def.inc</AbsolutePath>
 					<Attribute></Attribute>
 					<Category>header</Category>
 					<Condition>AVRASM</Condition>
-					<FileContentHash>YpGdK/vCoyGIUkMyqjAbKQ==</FileContentHash>
+					<FileContentHash>0hiFRWujMGW6E6fGULX1hw==</FileContentHash>
 					<FileVersion></FileVersion>
-					<Name>avrasm/inc/m328pdef.inc</Name>
+					<Name>avrasm/inc/m328def.inc</Name>
 					<SelectString></SelectString>
 					<SourcePath></SourcePath>
 				</d4p1:anyType>
@@ -41,7 +41,7 @@
 					<Attribute>template</Attribute>
 					<Category>source</Category>
 					<Condition>AVRASM</Condition>
-					<FileContentHash>jEqxGSx+2zHMFiTZ3UD6Xg==</FileContentHash>
+					<FileContentHash>W3H1rXiEttYmKsTnShna6Q==</FileContentHash>
 					<FileVersion></FileVersion>
 					<Name>avrasm/templates/main.asm</Name>
 					<SelectString>Main file (.asm)</SelectString>
@@ -52,7 +52,7 @@
 			<PackPath>C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/Atmel.ATmega_DFP.pdsc</PackPath>
 			<PackVersion>1.2.150</PackVersion>
 			<PresentInProject>true</PresentInProject>
-			<ReferenceConditionId>ATmega328P</ReferenceConditionId>
+			<ReferenceConditionId>ATmega328</ReferenceConditionId>
 			<RteComponents xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
 				<d4p1:string></d4p1:string>
 			</RteComponents>

@@ -3,9 +3,12 @@
 ; http://avr-mcu.dxp.pl
 ; e-mail : radek@dxp.pl
 ; (c) Radoslaw Kwiecien
+;
+; Bibliothèque de l'afficheur LCD
 ;------------------------------------------------------------------------------
-.include "hd44780.inc"
+.include "hd44780.inc" ; Définitions pré-processeur utilisées par la bibliothèque
 
+; setup des pîns utilisés par l'afficheur LCD
 .equ	LCD_PORT 	= PORTB
 .equ	LCD_DDR		= DDRB
 .equ    LCD_PIN		= PINB
@@ -87,9 +90,9 @@ LCD_WriteCommand:
 ; Write string (from program memory)
 ;------------------------------------------------------------------------------
 LCD_WriteString:
-	lpm		r16, Z+
-	cpi		r16, 0
-	breq	exit
+	lpm		r16, Z+				; Load Program Memory
+	cpi		r16, 0				; Compare à 0
+	breq	exit				; BRanch if EQual => On sort si r16 = 0
 	rcall	LCD_WriteData
 	rjmp	LCD_WriteString
 exit:
