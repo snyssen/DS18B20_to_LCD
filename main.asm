@@ -53,6 +53,8 @@ Text1 :
 ;	.db "avr-mcu.dxp.pl",0,0
 Tp :
 	.db	".",0,0
+Td :
+	.db	"C",0,0
 ;------------------------------------------------------------------------------
 ; Program entry point
 ;------------------------------------------------------------------------------
@@ -108,19 +110,27 @@ LoadLoop:
 ; SET DE L'ALARME
 	cpi		XL, 25						; On compare la température relevée à celle max avant alarme
 	brsh	SetLED						; allume la LED si on a atteint ou dépassé la temp d'alarme
-	cbi		PortB, 7
+	cbi		PortB, 7					; LED sur port B7
+;	cbi		PortD, 0					; LED sur port D0 (externe à la carte)
 	endbr:
 	rcall   bin2bcd8
 	rcall	LCD_WriteHex8				; display it on LCD in HEX
+;	ldi		ZL, LOW(Tp << 1)			; Load string address to Z		A TESTER (rajoute le point décimal
+;	ldi		ZH, HIGH(Tp<< 1)			;
+;	rcall	LCD_WriteString				; Display string
 	mov		r16, r18					; load DEC
 	rcall	bin2bcd8
-	rcall	LCD_WriteHex8				; display it on LCD in HEX
+	rcall	LCD_WriteHex8				; display it on LCD in HEX		A TESTER (rajoute le C de Celsius)
+;	ldi		ZL, LOW(Td << 1)			; Load string address to Z
+;	ldi		ZH, HIGH(Td<< 1)			;
+;	rcall	LCD_WriteString				; Display string
 	jmp		MainLoop
 	brne	LoadLoop					; if not zero, jump to LoadLoop
 	rjmp	MainLoop					; jump to MainLoop
 
 SetLED:
-	sbi		PortB, 7
+	sbi		PortB, 7					; LED sur port B7
+;	sbi		PortD, 0					; LED sur port D0 (externe à la carte)
 	jmp		endbr
 
 ;------------------------------------------------------------------------------
